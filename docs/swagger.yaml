@@ -1,0 +1,497 @@
+definitions:
+  models.Application:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      filename:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+      url:
+        type: string
+    type: object
+  models.News:
+    properties:
+      content:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /api/applications:
+    get:
+      description: Возвращает список всех загруженных приложений
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Application'
+            type: array
+        "500":
+          description: Ошибка получения приложений
+      summary: Получение списка всех приложений
+      tags:
+      - applications
+    post:
+      consumes:
+      - multipart/form-data
+      description: Загружает новое приложение с файлом или URL
+      parameters:
+      - description: Название приложения
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: Описание приложения
+        in: formData
+        name: description
+        required: true
+        type: string
+      - description: URL приложения
+        in: formData
+        name: url
+        type: string
+      - description: Файл приложения
+        in: formData
+        name: file
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Application'
+        "400":
+          description: Файл не найден
+        "500":
+          description: Ошибка создания приложения
+      summary: Создание нового приложения
+      tags:
+      - applications
+  /api/applications/{id}:
+    delete:
+      description: Удаляет приложение по указанному ID
+      parameters:
+      - description: ID приложения
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: Приложение удалено
+        "400":
+          description: Некорректный ID приложения
+        "404":
+          description: Приложение не найдено
+        "500":
+          description: Ошибка удаления приложения
+      summary: Удаление приложения
+      tags:
+      - applications
+    get:
+      description: Возвращает приложение по указанному ID
+      parameters:
+      - description: ID приложения
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Application'
+        "400":
+          description: Некорректный ID приложения
+        "404":
+          description: Приложение не найдено
+      summary: Получение приложения по ID
+      tags:
+      - applications
+    put:
+      consumes:
+      - application/json
+      description: Обновляет данные приложения по указанному ID
+      parameters:
+      - description: ID приложения
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Обновляемые данные приложения
+        in: body
+        name: application
+        required: true
+        schema:
+          $ref: '#/definitions/models.Application'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Application'
+        "400":
+          description: Некорректный ID или неверный формат запроса
+        "500":
+          description: Ошибка обновления приложения
+      summary: Обновление данных приложения
+      tags:
+      - applications
+  /api/documents:
+    get:
+      description: Возвращает список всех загруженных документов
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: object
+            type: array
+        "500":
+          description: Ошибка получения документов
+      summary: Получение списка всех документов
+      tags:
+      - documents
+    post:
+      consumes:
+      - multipart/form-data
+      description: Загрузка документа на сервер
+      parameters:
+      - description: Название документа
+        in: formData
+        name: title
+        required: true
+        type: string
+      - description: Файл документа
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: object
+        "400":
+          description: Файл не найден
+        "500":
+          description: Ошибка загрузки файла
+      summary: Загрузка документа
+      tags:
+      - documents
+  /api/documents/{id}:
+    delete:
+      description: Удаляет документ по указанному ID
+      parameters:
+      - description: ID документа
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: Документ удален
+        "400":
+          description: Некорректный ID документа
+        "500":
+          description: Ошибка удаления документа
+      summary: Удаление документа по ID
+      tags:
+      - documents
+    get:
+      description: Скачивание документа по его ID
+      parameters:
+      - description: ID документа
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Файл для скачивания
+        "400":
+          description: Некорректный ID документа
+        "404":
+          description: Документ не найден
+      summary: Скачивание документа по ID
+      tags:
+      - documents
+  /api/logout:
+    post:
+      description: Выход пользователя и удаление refresh-токена
+      responses:
+        "200":
+          description: Успешный выход
+        "401":
+          description: Unauthorized
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
+      summary: Выход пользователя
+      tags:
+      - auth
+  /api/news:
+    get:
+      description: Возвращает список всех новостей
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.News'
+            type: array
+        "500":
+          description: Ошибка получения новостей
+      summary: Получение списка всех новостей
+      tags:
+      - news
+    post:
+      consumes:
+      - application/json
+      description: Создаёт новую новость
+      parameters:
+      - description: Данные новости
+        in: body
+        name: news
+        required: true
+        schema:
+          $ref: '#/definitions/models.News'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.News'
+        "400":
+          description: Неверный формат запроса
+        "500":
+          description: Ошибка создания новости
+      summary: Создание новости
+      tags:
+      - news
+  /api/news/{id}:
+    delete:
+      description: Удаляет новость по указанному ID
+      parameters:
+      - description: ID новости
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: Новость удалена
+        "400":
+          description: Некорректный ID
+        "500":
+          description: Ошибка удаления новости
+      summary: Удаление новости по ID
+      tags:
+      - news
+    get:
+      description: Возвращает новость по указанному ID
+      parameters:
+      - description: ID новости
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.News'
+        "400":
+          description: Некорректный ID
+        "404":
+          description: Новость не найдена
+      summary: Получение новости по ID
+      tags:
+      - news
+    put:
+      consumes:
+      - application/json
+      description: Обновляет новость по указанному ID
+      parameters:
+      - description: ID новости
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Обновляемые данные новости
+        in: body
+        name: news
+        required: true
+        schema:
+          $ref: '#/definitions/models.News'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.News'
+        "400":
+          description: Некорректный ID или неверный формат запроса
+        "500":
+          description: Ошибка обновления новости
+      summary: Обновление новости по ID
+      tags:
+      - news
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Авторизация пользователя по email и паролю
+      parameters:
+      - description: Данные пользователя
+        in: body
+        name: user
+        required: true
+        schema:
+          properties:
+            email:
+              type: string
+            password:
+              type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            properties:
+              access_token:
+                type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
+      summary: Авторизация пользователя
+      tags:
+      - auth
+  /refresh:
+    post:
+      description: Обновляет access-токен с помощью refresh-токена
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            properties:
+              access_token:
+                type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
+      summary: Обновление access-токена
+      tags:
+      - auth
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Регистрация нового пользователя с email и паролем
+      parameters:
+      - description: Данные пользователя
+        in: body
+        name: user
+        required: true
+        schema:
+          properties:
+            email:
+              type: string
+            password:
+              type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            properties:
+              message:
+                type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            properties:
+              error:
+                type: string
+            type: object
+      summary: Регистрация пользователя
+      tags:
+      - auth
+swagger: "2.0"

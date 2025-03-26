@@ -62,6 +62,18 @@ func formatErrors(errors []string) string {
 	return result
 }
 
+// Register godoc
+// @Summary Регистрация пользователя
+// @Description Регистрация нового пользователя с email и паролем
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param user body object{email=string,password=string} true "Данные пользователя"
+// @Success 201 {object} object{message=string}
+// @Failure 400 {object} object{error=string}
+// @Failure 409 {object} object{error=string}
+// @Failure 500 {object} object{error=string}
+// @Router /register [post]
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		Email    string `json:"email"`
@@ -104,6 +116,17 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// Login godoc
+// @Summary Авторизация пользователя
+// @Description Авторизация пользователя по email и паролю
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param user body object{email=string,password=string} true "Данные пользователя"
+// @Success 200 {object} object{access_token=string}
+// @Failure 400 {object} object{error=string}
+// @Failure 401 {object} object{error=string}
+// @Router /login [post]
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		Email    string `json:"email"`
@@ -139,6 +162,14 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// Refresh godoc
+// @Summary Обновление access-токена
+// @Description Обновляет access-токен с помощью refresh-токена
+// @Tags auth
+// @Produce json
+// @Success 200 {object} object{access_token=string}
+// @Failure 401 {object} object{error=string}
+// @Router /refresh [post]
 func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("refresh_token")
 	if err != nil {
@@ -168,6 +199,14 @@ func (h *AuthHandler) Refresh(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// Logout godoc
+// @Summary Выход пользователя
+// @Description Выход пользователя и удаление refresh-токена
+// @Tags auth
+// @Success 200 "Успешный выход"
+// @Failure 401 {object} object{error=string}
+// @Failure 500 {object} object{error=string}
+// @Router /api/logout [post]
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	email, ok := r.Context().Value(middleware.UserEmailKey).(string)
 	if !ok {
@@ -186,7 +225,7 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 		Name:     "refresh_token",
 		Value:    "",
 		HttpOnly: true,
-		Secure:   false,
+		Secure:   true,
 		Path:     "/",
 		MaxAge:   -1,
 	})

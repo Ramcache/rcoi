@@ -23,6 +23,20 @@ func NewApplicationHandler(service services.ApplicationService, logger *zap.Logg
 	return &ApplicationHandler{service: service, logger: logger}
 }
 
+// CreateApplication godoc
+// @Summary Создание нового приложения
+// @Description Загружает новое приложение с файлом или URL
+// @Tags applications
+// @Accept multipart/form-data
+// @Produce json
+// @Param title formData string true "Название приложения"
+// @Param description formData string true "Описание приложения"
+// @Param url formData string false "URL приложения"
+// @Param file formData file false "Файл приложения"
+// @Success 201 {object} models.Application
+// @Failure 400 "Файл не найден"
+// @Failure 500 "Ошибка создания приложения"
+// @Router /api/applications [post]
 func (h *ApplicationHandler) CreateApplication(w http.ResponseWriter, r *http.Request) {
 	title := r.FormValue("title")
 	description := r.FormValue("description")
@@ -58,6 +72,14 @@ func (h *ApplicationHandler) CreateApplication(w http.ResponseWriter, r *http.Re
 	json.NewEncoder(w).Encode(app)
 }
 
+// GetAllApplications godoc
+// @Summary Получение списка всех приложений
+// @Description Возвращает список всех загруженных приложений
+// @Tags applications
+// @Produce json
+// @Success 200 {array} models.Application
+// @Failure 500 "Ошибка получения приложений"
+// @Router /api/applications [get]
 func (h *ApplicationHandler) GetAllApplications(w http.ResponseWriter, r *http.Request) {
 	apps, err := h.service.GetAllApplications(r.Context())
 	if err != nil {
@@ -68,6 +90,16 @@ func (h *ApplicationHandler) GetAllApplications(w http.ResponseWriter, r *http.R
 	json.NewEncoder(w).Encode(apps)
 }
 
+// GetApplicationByID godoc
+// @Summary Получение приложения по ID
+// @Description Возвращает приложение по указанному ID
+// @Tags applications
+// @Produce json
+// @Param id path int true "ID приложения"
+// @Success 200 {object} models.Application
+// @Failure 400 "Некорректный ID приложения"
+// @Failure 404 "Приложение не найдено"
+// @Router /api/applications/{id} [get]
 func (h *ApplicationHandler) GetApplicationByID(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
@@ -91,6 +123,18 @@ func (h *ApplicationHandler) GetApplicationByID(w http.ResponseWriter, r *http.R
 	http.ServeFile(w, r, filePath)
 }
 
+// UpdateApplication godoc
+// @Summary Обновление данных приложения
+// @Description Обновляет данные приложения по указанному ID
+// @Tags applications
+// @Accept json
+// @Produce json
+// @Param id path int true "ID приложения"
+// @Param application body models.Application true "Обновляемые данные приложения"
+// @Success 200 {object} models.Application
+// @Failure 400 "Некорректный ID или неверный формат запроса"
+// @Failure 500 "Ошибка обновления приложения"
+// @Router /api/applications/{id} [put]
 func (h *ApplicationHandler) UpdateApplication(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
@@ -113,6 +157,16 @@ func (h *ApplicationHandler) UpdateApplication(w http.ResponseWriter, r *http.Re
 	json.NewEncoder(w).Encode(app)
 }
 
+// DeleteApplication godoc
+// @Summary Удаление приложения
+// @Description Удаляет приложение по указанному ID
+// @Tags applications
+// @Param id path int true "ID приложения"
+// @Success 204 "Приложение удалено"
+// @Failure 400 "Некорректный ID приложения"
+// @Failure 404 "Приложение не найдено"
+// @Failure 500 "Ошибка удаления приложения"
+// @Router /api/applications/{id} [delete]
 func (h *ApplicationHandler) DeleteApplication(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {

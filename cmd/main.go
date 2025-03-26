@@ -2,21 +2,22 @@ package main
 
 import (
 	"context"
+	"github.com/gorilla/mux"
+	"github.com/rs/cors"
+	httpSwagger "github.com/swaggo/http-swagger"
 	"go.uber.org/zap"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
-	"syscall"
-	"time"
-
-	"github.com/gorilla/mux"
-	"github.com/rs/cors"
 	"rcoi/config"
+	_ "rcoi/docs"
 	"rcoi/internal/handlers"
 	"rcoi/internal/middleware"
 	"rcoi/internal/repositories"
 	"rcoi/internal/services"
+	"syscall"
+	"time"
 )
 
 func main() {
@@ -56,6 +57,7 @@ func main() {
 	r.HandleFunc("/register", authHandler.Register).Methods("POST")
 	r.HandleFunc("/login", authHandler.Login).Methods("POST")
 	r.HandleFunc("/refresh", authHandler.Refresh).Methods("POST")
+	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 
 	// Защищённые маршруты (JWT middleware)
 	protected := r.PathPrefix("/api").Subrouter()
